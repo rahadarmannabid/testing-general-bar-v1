@@ -158,8 +158,15 @@ function handleNextClick() {
 
 
 function submitResponse(answer) {
-    console.log(`Question: ${questions[currentQuestionIndex].question}, Answer: ${answer}`);
-    // Here you can submit the response to Firebase
+    const question = questions[currentQuestionIndex];
+    database.ref('responses').push({
+        question: question.question,
+        answer: answer
+    }).then(() => {
+        console.log('Response saved successfully.');
+    }).catch(error => {
+        console.error('Error saving response:', error);
+    });
 }
 
 function finalizeSurvey() {
