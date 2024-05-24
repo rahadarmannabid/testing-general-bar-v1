@@ -69,7 +69,7 @@
 <body>
     <div class="container">
         <form id="nextSurveyForm">
-            <div id="questionContainer">
+           <b> <div id="questionContainer"></b>
                 <!-- Question content dynamically inserted here -->
             </div>
             <div style="text-align: center;">
@@ -81,14 +81,31 @@
     <script>
         firebase.initializeApp({
             apiKey: "AIzaSyDNnCEqqJMnJyeYLnecymMUlkNXjv_iPqY",
-  authDomain: "eg-1-testing-general-bar.firebaseapp.com",
-  projectId: "eg-1-testing-general-bar",
-  storageBucket: "eg-1-testing-general-bar.appspot.com",
-  messagingSenderId: "844455438092",
-  appId: "1:844455438092:web:1b6c90983d15d295c40b29",
-  measurementId: "G-5MLLJF7S8K"
+            authDomain: "eg-1-testing-general-bar.firebaseapp.com",
+            projectId: "eg-1-testing-general-bar",
+            storageBucket: "eg-1-testing-general-bar.appspot.com",
+            messagingSenderId: "844455438092",
+            appId: "1:844455438092:web:1b6c90983d15d295c40b29",
+            measurementId: "G-5MLLJF7S8K"
         });
         const database = firebase.database();
+
+        function getCookie(name) {
+            let cookieArray = document.cookie.split(';');
+            for (let i = 0; i < cookieArray.length; i++) {
+                let cookiePair = cookieArray[i].split('=');
+                if (name == cookiePair[0].trim()) {
+                    return cookiePair[1];
+                }
+            }
+            return null;
+        }
+
+        let userId = getCookie('userId');
+        if (!userId) {
+            userId = 'user_' + Date.now();
+            document.cookie = "userId=" + userId + "; path=/";
+        }
 
         const questions = [
             { question: "What is your current education level?", options: ["High School", "Associate Degree", "Bachelor's Degree", "Master's Degree", "Doctorate or Higher", "Other"], type: "radio" },
@@ -101,79 +118,69 @@
             { question: "What are the strengths of the explanations?", options: [], type: "textarea" },
             { question: "What are the weaknesses of the explanations?", options: [], type: "textarea" },
             { question: "The sequence of explanations on different topics felt natural.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"], type: "radio" }
-            // { question: "The annotations help in learning data visualization.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"], type: "radio" },
-            // { question: "The annotations are highly engaging.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"], type: "radio" },
-            // { question: "The annotations were distracting during the learning process.", options: ["Strongly Disagree", "Disagree", "Neutral", "Agree", "Strongly Agree"], type: "radio" },
-            // { question: "What are the strengths of the annotations?", options: [], type: "textarea" },
-            // { question: "What are the weaknesses of the annotations?", options: [], type: "textarea" }
         ];
 
         let currentQuestionIndex = 0;
 
-function loadQuestion() {
-    const questionContainer = document.getElementById('questionContainer');
-    const question = questions[currentQuestionIndex];
-    let contentHtml = `<h3>${question.question}</h3>`;
+        function loadQuestion() {
+            const questionContainer = document.getElementById('questionContainer');
+            const question = questions[currentQuestionIndex];
+            let contentHtml = `<h3>${question.question}</h3>`;
 
-    if(question.type === "textarea") {
-        contentHtml += `<textarea name="answer"></textarea>`;
-    } else {
-        question.options.forEach((option, index) => {
-            contentHtml += `<label><input type="${question.type}" name="answer" value="${option}">${option}</label>`;
-        });
-    }
+            if (question.type === "textarea") {
+                contentHtml += `<textarea name="answer"></textarea>`;
+            } else {
+                question.options.forEach((option, index) => {
+                    contentHtml += `<label><input type="${question.type}" name="answer" value="${option}">${option}</label>`;
+                });
+            }
 
-    questionContainer.innerHTML = contentHtml;
-}
+            questionContainer.innerHTML = contentHtml;
+        }
 
-function handleNextClick() {
-    // This variable will check if an answer has been provided
-    let selectedAnswer;
+        function handleNextClick() {
+            let selectedAnswer;
 
-    // Check if the current question is a textarea or a radio input
-    if (questions[currentQuestionIndex].type === "textarea") {
-        selectedAnswer = document.querySelector('[name="answer"]').value.trim(); // Check textarea input
-    } else {
-        selectedAnswer = document.querySelector('[name="answer"]:checked')?.value; // Check radio input
-    }
+            if (questions[currentQuestionIndex].type === "textarea") {
+                selectedAnswer = document.querySelector('[name="answer"]').value.trim();
+            } else {
+                selectedAnswer = document.querySelector('[name="answer"]:checked')?.value;
+            }
 
-    // Ensure an answer has been provided before allowing user to proceed
-    if (!selectedAnswer) {
-        alert('Please answer the question before proceeding.');
-        return;
-    }
+            if (!selectedAnswer) {
+                alert('Please answer the question before proceeding.');
+                return;
+            }
 
-    // Submit the response
-    submitResponse(selectedAnswer);
+            submitResponse(selectedAnswer);
 
-    // Move to the next question or finalize the survey
-    currentQuestionIndex++;
-    if (currentQuestionIndex < questions.length) {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                document.getElementById('nextButton').innerText = 'Finish';
+                document.getElementById('nextButton').onclick = finalizeSurvey;
+            }
+        }
+
+        function submitResponse(answer) {
+            const question = questions[currentQuestionIndex];
+            database.ref('responses/' + userId).push({
+                question: question.question,
+                answer: answer,
+                timestamp: new Date().toISOString()
+            }).then(() => {
+                console.log('Response saved successfully.');
+            }).catch(error => {
+                console.error('Error saving response:', error);
+            });
+        }
+
+        function finalizeSurvey() {
+            window.location.href = 'thanku.html';
+        }
+
         loadQuestion();
-    } else {
-        document.getElementById('nextButton').innerText = 'Finish';
-        document.getElementById('nextButton').onclick = finalizeSurvey;
-    }
-}
-
-
-function submitResponse(answer) {
-    const question = questions[currentQuestionIndex];
-    database.ref('responses').push({
-        question: question.question,
-        answer: answer
-    }).then(() => {
-        console.log('Response saved successfully.');
-    }).catch(error => {
-        console.error('Error saving response:', error);
-    });
-}
-
-function finalizeSurvey() {
-    window.location.href = 'thanku.html'; // Redirect to thank you page
-}
-
-loadQuestion(); // Initial call to load the first question
     </script>
 </body>
 </html>

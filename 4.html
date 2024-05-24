@@ -58,7 +58,7 @@
             margin-top: 10px;
             cursor: pointer;
             transition: transform 0.3s ease;
-            width: 50%; /* Adjust the width as needed */
+            width: 50%;
             box-sizing: border-box;
         }
 
@@ -77,10 +77,10 @@
 
         .image-container img {
             display: block;
-            width: 80%; /* Full width images */
-            height: auto; /* Maintains aspect ratio */
+            width: 80%;
+            height: auto;
             border-radius: 10px 10px 0 0;
-            margin: 0 auto; /* Auto margins for horizontal centering */
+            margin: 0 auto;
         }
     </style>
 </head>
@@ -90,11 +90,12 @@
             <img src="bar_chart_A.png" alt="Consent Form Image">
         </div>
         <p>
-            Try to answer the following questions (8 questions) based on the box plot shown above. Each question will have multiple choice answers. Click "Next" to proceed to the next question. You can skip a question if you are unsure of the answer.
+            <i>Try to answer the following questions (8 questions) based on the box plot shown above. Each question will have multiple choice answers. Click "Next" to proceed to the next question. You can skip a question if you are unsure of the answer.
+            </i>
         </p>
         
         <form id="nextSurveyForm">
-            <div id="questionContainer"></div>
+            <b><div id="questionContainer"></div></b>
             <div style="text-align: center;">
                 <button type="button" onclick="handleNextClick()">Next</button>
             </div>
@@ -104,12 +105,12 @@
     <script>
         firebase.initializeApp({
             apiKey: "AIzaSyDNnCEqqJMnJyeYLnecymMUlkNXjv_iPqY",
-  authDomain: "eg-1-testing-general-bar.firebaseapp.com",
-  projectId: "eg-1-testing-general-bar",
-  storageBucket: "eg-1-testing-general-bar.appspot.com",
-  messagingSenderId: "844455438092",
-  appId: "1:844455438092:web:1b6c90983d15d295c40b29",
-  measurementId: "G-5MLLJF7S8K"
+            authDomain: "eg-1-testing-general-bar.firebaseapp.com",
+            projectId: "eg-1-testing-general-bar",
+            storageBucket: "eg-1-testing-general-bar.appspot.com",
+            messagingSenderId: "844455438092",
+            appId: "1:844455438092:web:1b6c90983d15d295c40b29",
+            measurementId: "G-5MLLJF7S8K"
         });
         const database = firebase.database();
 
